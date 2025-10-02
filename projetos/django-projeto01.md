@@ -113,7 +113,7 @@ Desenvolver um sistema de **e-commerce** utilizando **Python + Django**, com fun
 ## 🛠️ Stack Tecnológica
 - **Backend**: Python 3 + Django (com Django Rest Framework para APIs).
 - **Banco de Dados**: PostgreSQL ou MySQL.
-- **Frontend**: Django Templates ou SPA (React/Vue/Angular) consumindo API.
+- **Frontend**: Django Templates.
 - **Autenticação**: Django default + JWT (para integração com API).
 - **Pagamentos**: Stripe / MercadoPago / PagSeguro.
 - **Containerização (opcional)**: Docker.
