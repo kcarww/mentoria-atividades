@@ -1,5 +1,3 @@
-content = """
-
 
 1. Dada `[1, 3, 5, 8]`, verifique e imprima se existe pelo menos um número par.
 2. Dada `["Ana", "Beatriz", "Carlos", "Alexandre"]`, verifique se existe nome com mais de 10 caracteres.
