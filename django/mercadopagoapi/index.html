@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Card Payment Brick - Gerar Card Token</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; }
+    #brick-container { border: 1px solid #ccc; border-radius: 8px; padding: 16px; }
+    #log { margin-top: 16px; white-space: pre-wrap; background: #111; color: #0f0; padding: 12px; border-radius: 6px; min-height: 120px; }
+  </style>
+</head>
+<body>
+  <h1>Card Payment Brick - Gerar Card Token</h1>
+  <p>Teste BR: 5031 4332 1540 6351 | Venc: 12/30 | CVV: 123 | Nome: APRO | CPF: 19119119100</p>
+
+  <div id="brick-container"></div>
+  <div id="log"></div>
+
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <script>
+    const PUBLIC_KEY = "TEST-1ef99cd5-5dc8-4098-8093-8e00b0e38fdf";
+    const logBox = document.getElementById("log");
+    const log = (...args) => {
+      try {
+        const str = args.map(a => (typeof a === "object" ? JSON.stringify(a, null, 2) : String(a))).join(" ");
+        console.log(...args);
+        logBox.textContent += str + "\n";
+      } catch { logBox.textContent += args.map(String).join(" ") + "\n"; }
+    };
+
+    const mp = new MercadoPago(PUBLIC_KEY, { locale: "pt-BR" });
+
+    async function loadCardPaymentBrick() {
+      const bricks = mp.bricks();
+      const settings = {
+        initialization: {
+          amount: 58.00
+        },
+        customization: {
+          visual: { style: { theme: "default" } }
+        },
+        callbacks: {
+          onReady: () => log("Card Payment Brick pronto. Preencha os dados de teste."),
+          onError: (error) => log("onError:", error),
+          onSubmit: async (formData) => {
+            // formData deve conter o token do cartão
+            log("onSubmit payload:", formData);
+
+            // Algumas versões expõem em formData.token; outras em formData.cardToken
+            const token = formData?.token || formData?.cardToken || formData?.payment?.token;
+            if (token) {
+              log("Card Token:", token);
+              alert("Token gerado! Veja os logs/console.");
+            } else {
+              log("Token não encontrado no payload. Veja o objeto acima para o caminho correto.");
+            }
+
+            // Não criar pagamento agora; apenas simular sucesso
+            return Promise.resolve();
+          }
+        }
+      };
+
+      await bricks.create("cardPayment", "brick-container", settings);
+    }
+
+    loadCardPaymentBrick().catch(err => log("Falha ao montar o Card Payment Brick:", err));
+  </script>
+</body>
+</html>
