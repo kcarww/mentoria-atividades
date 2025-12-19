@@ -1,0 +1,20 @@
+### 
+
+POST http://localhost:8000/api/usuarios/registrar/
+Content-Type: application/json
+
+{
+  "nome": "João Silva",
+  "email": "joao@example.com",
+  "senha": "senha123"
+}
+
+### 
+
+POST http://localhost:8000/api/usuarios/login/
+Content-Type: application/json
+
+{
+  "email": "joao@example.com",
+  "senha": "senha123"
+}
