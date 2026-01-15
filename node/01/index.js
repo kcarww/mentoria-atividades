@@ -47,6 +47,41 @@ app.post('/alunos', (req, res) => {
   res.status(201).json(novoAluno);
 });
 
+app.put('/alunos/:matricula', (req, res) => {
+  const { matricula } = req.params;
+  const { nome, idade, curso } = req.body;
+  
+  const index = alunos.findIndex(a => a.matricula === matricula);
+  
+  if (index === -1) {
+    return res.status(404).json({ erro: 'Aluno não encontrado' });
+  }
+  
+  // Atualiza apenas os campos fornecidos
+  if (nome) alunos[index].nome = nome;
+  if (idade) alunos[index].idade = Number(idade);
+  if (curso) alunos[index].curso = curso;
+  
+  res.json(alunos[index]);
+});
+
+app.delete('/alunos/:matricula', (req, res) => {
+  const { matricula } = req.params;
+  
+  const index = alunos.findIndex(a => a.matricula === matricula);
+  
+  if (index === -1) {
+    return res.status(404).json({ erro: 'Aluno não encontrado' });
+  }
+  
+  const alunoRemovido = alunos.splice(index, 1)[0];
+  
+  res.json({ 
+    mensagem: 'Aluno removido com sucesso', 
+    aluno: alunoRemovido 
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
