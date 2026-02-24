@@ -1,3 +1,19 @@
+/*
+npm init -y
+npm i express mysql2 dotenv
+npm i -D nodemon
+
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=clientes_db
+DB_PORT=3306
+
+
+*/
+
+
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 
