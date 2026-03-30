@@ -391,6 +391,7 @@ Exemplo de estrutura:
 
 ```python
 import json
+import time
 
 import pika
 from django.conf import settings
@@ -403,9 +404,8 @@ class Command(BaseCommand):
     help = 'Consume eventos customer.created'
 
     def handle(self, *args, **options):
-        connection = pika.BlockingConnection(
-            pika.URLParameters(settings.RABBITMQ_URL)
-        )
+        connection = self._connect_with_retry()
+        self.stdout.write(self.style.SUCCESS('Conectado ao RabbitMQ com sucesso.'))
         channel = connection.channel()
 
         channel.exchange_declare(
@@ -422,22 +422,64 @@ class Command(BaseCommand):
 
         def callback(ch, method, properties, body):
             payload = json.loads(body)
-            customer = Customer.objects.get(id=payload['customer_id'])
+            self.stdout.write(f'Mensagem recebida: {payload}')
 
-            NotificationLog.objects.create(
-                customer=customer,
-                type='WELCOME_EMAIL',
-                status='SENT',
-                payload=payload,
-            )
+            try:
+                customer = Customer.objects.get(id=payload['customer_id'])
 
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+                NotificationLog.objects.create(
+                    customer=customer,
+                    type='WELCOME_EMAIL',
+                    status='SENT',
+                    payload=payload,
+                )
+
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f'Evento processado para customer_id={customer.id}.'
+                    )
+                )
+            except Customer.DoesNotExist:
+                ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+                self.stdout.write(
+                    self.style.ERROR(
+                        f"Cliente nao encontrado para customer_id={payload.get('customer_id')}."
+                    )
+                )
+            except Exception as exc:
+                ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+                self.stdout.write(
+                    self.style.ERROR(f'Erro ao processar mensagem: {exc}')
+                )
 
         channel.basic_consume(
             queue=settings.RABBITMQ_QUEUE,
             on_message_callback=callback,
         )
+        self.stdout.write('Worker aguardando mensagens...')
         channel.start_consuming()
+
+    def _connect_with_retry(self, retries=12, delay=5):
+        parameters = pika.URLParameters(settings.RABBITMQ_URL)
+        last_error = None
+
+        for attempt in range(1, retries + 1):
+            try:
+                self.stdout.write(
+                    f'Tentando conectar ao RabbitMQ ({attempt}/{retries})...'
+                )
+                return pika.BlockingConnection(parameters)
+            except pika.exceptions.AMQPConnectionError as exc:
+                last_error = exc
+                self.stdout.write(
+                    self.style.WARNING(
+                        f'RabbitMQ indisponivel. Nova tentativa em {delay}s.'
+                    )
+                )
+                time.sleep(delay)
+
+        raise last_error
 ```
 
 ### Resultado esperado
