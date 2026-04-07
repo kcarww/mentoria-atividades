@@ -1,0 +1,29 @@
+{
+  "name": "typescript-heranca-polimorfismo",
+  "version": "1.0.0",
+  "description": "Aula prática sobre Herança e Polimorfismo em TypeScript",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "exemplo1": "ts-node src/examples/1-heranca-basica/index.ts",
+    "exemplo2": "ts-node src/examples/2-polimorfismo/index.ts",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "typescript",
+    "orientacao-objetos",
+    "heranca",
+    "polimorfismo",
+    "aula"
+  ],
+  "author": "Carlos",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
